@@ -1,0 +1,13 @@
+name: BayesOptJC
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - pip
+  - pandas
+  - altair
+  - altair_saver
+  - jupyter
+  - ipywidgets
+  - pip:
+    - gpflow
