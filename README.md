@@ -1,3 +1,8 @@
+# Bayesian optimisation
+
+Code to experiment with Bayesian optimisation.
+
+
 ## Install
 
 Pre-requisites:
