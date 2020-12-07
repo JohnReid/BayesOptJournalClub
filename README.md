@@ -9,22 +9,21 @@ optimisation packages.
 
 ## Meetup
 
-The meetup came out of an idea to explore Distill's articles on Bayesian
+The LDSJC meetup came out of an idea to explore Distill's articles on Bayesian
 optimisation and Gaussian processes. However on closer reflection these present
 an idealised view of the subject so I looked for some more realistic material
-to cover. This gave me the idea of a game where we try to improve upon Bayesian
-optimisation. Also I found Peter Frazier's tutorial paper that gives a good
-overview.
+to cover. This suggested a game where we try to improve upon Bayesian
+optimisation.
 
 
 ### Agenda
 
-- play a simple Xmas Bayesian optimisation guessing game as an introduction
+- play a Bayesian optimisation guessing game (how hard can it be?)
 - discuss [this tutorial paper](https://arxiv.org/abs/1807.02811) on Bayesian optimisation
 - further interactive exploration of Bayesian optimisation and Gaussian processes on Distill
 
 
-## Resources
+### Resources
 
 - [Experimental code](https://github.com/JohnReid/BayesOptJournalClub/) for
   Bayesian optimisation
