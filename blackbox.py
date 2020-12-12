@@ -8,15 +8,56 @@ import gpflow
 DTYPE = float
 DOMAIN_MIN = -1
 DOMAIN_MAX = 1
+DOMAIN_WIDTH = DOMAIN_MAX - DOMAIN_MIN
 DOMAIN = DOMAIN_MIN, DOMAIN_MAX
 COLOURSCHEME = 'redyellowgreen'
+
+rng = np.random.default_rng()
+
+
+def prior_draw(kernelf, xx):
+    return np.random.multivariate_normal(np.zeros_like(xx), kernelf(xx.reshape((-1, 1))))
+
+
+def xx(npoints):
+    return np.linspace(DOMAIN_MIN, DOMAIN_MAX, npoints)
+
+
+def random_submerged_skyline(npoints):
+    """Return values of the skyline of a submerged house with a chimney at points."""
+    # Choose random house and chimney locations
+    chimney_width = DOMAIN_WIDTH / 20
+    chimney_depth = rng.uniform(0, .5)
+    chimney_height = .07
+    house_height = .4
+    margin = DOMAIN_WIDTH / 20
+    min_house_width = DOMAIN_WIDTH / 4
+    max_house_width = 3 / 4 * DOMAIN_WIDTH
+    house_width = rng.uniform(min_house_width, max_house_width)
+    house_left = rng.uniform(DOMAIN_MIN + margin, DOMAIN_MAX - margin - house_width)
+    chimney_left = rng.uniform(house_left + margin, house_left + house_width - margin - chimney_width)
+    # Draw random skyline, adjusting for house and chimney height
+    x = xx(npoints)
+    kernelf = gpflow.kernels.Matern52(1, lengthscales=5)
+    skyline = prior_draw(kernelf, x)
+    house = (x >= house_left) & (x <= house_left + house_width)
+    chimney = (x >= chimney_left) & (x <= chimney_left + chimney_width)
+    skyline[house] += house_height
+    skyline[chimney] += chimney_height
+    skyline -= skyline.max() + chimney_depth
+    # Check the chimney is the highest point
+    if skyline[chimney].max() <= skyline[~ chimney].max():
+        # It isn't, resample
+        return random_submerged_skyline(npoints)
+    else:
+        return x, skyline
 
 
 class GPBlackBox:
     """Black box function to be optimised drawn from a Gaussian process."""
 
     def __init__(self, ndim=1):
-        self.kernel = gpflow.kernels.Matern32() + gpflow.kernels.Linear(variance=.4**2)
+        self.kernel = gpflow.kernels.Matern32(lengthscales=.4) + gpflow.kernels.Linear(variance=.4**2)
         self.noise_variance = .3**2
         # Give one data point at origin with value 0
         self.x = np.zeros((1, ndim), dtype=DTYPE)
