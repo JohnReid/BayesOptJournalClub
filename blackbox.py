@@ -12,7 +12,7 @@ DOMAIN_WIDTH = DOMAIN_MAX - DOMAIN_MIN
 DOMAIN = DOMAIN_MIN, DOMAIN_MAX
 COLOURSCHEME = 'redyellowgreen'
 
-rng = np.random.default_rng()
+rng = np.random.default_rng(37)
 
 
 def prior_draw(kernelf, xx):
@@ -56,22 +56,25 @@ def random_submerged_skyline(npoints):
 class GPBlackBox:
     """Black box function to be optimised drawn from a Gaussian process."""
 
-    def __init__(self, ndim=1):
-        self.kernel = gpflow.kernels.Matern32(lengthscales=.4) + gpflow.kernels.Linear(variance=.4**2)
-        self.noise_variance = .3**2
-        # Give one data point at origin with value 0
+    def __init__(self, ndim=1, noise_sd=.4, y=None):
+        self.noise_variance = noise_sd**2
+        self.kernel = gpflow.kernels.Matern52(lengthscales=.4)
         self.x = np.zeros((1, ndim), dtype=DTYPE)
-        self.y = np.zeros((1, 1), dtype=DTYPE)
+        if y is None:
+            # Start with one data point at origin with value 0
+            self.y = rng.normal(0, scale=noise_sd, size=(1, 1)).astype(dtype=DTYPE)
+        else:
+            self.y = y.copy()
         self._update_model()
 
     def _update_model(self):
         self.model = gpflow.models.GPR(self.xy, kernel=self.kernel, noise_variance=self.noise_variance)
 
-    def xgrid(self, num):
+    def xgrid(self, npoints):
         if 1 == self.ndim:
-            return np.linspace(DOMAIN_MIN, DOMAIN_MAX, num).reshape(num, 1)
+            return np.linspace(DOMAIN_MIN, DOMAIN_MAX, npoints).reshape(npoints, 1)
         if 2 == self.ndim:
-            xx = np.linspace(DOMAIN_MIN, DOMAIN_MAX, num).reshape(num, 1)
+            xx = np.linspace(DOMAIN_MIN, DOMAIN_MAX, npoints).reshape(npoints, 1)
             xx0, xx1 = np.meshgrid(xx, xx)
             return np.asarray([np.ravel(xx0), np.ravel(xx1)]).T
         raise ValueError(f'Cannot create x-grid when x has dimensions {self.ndim} > 2')
@@ -107,8 +110,8 @@ class GPBlackBox:
         self._update_model()
         return y
 
-    def sample_f(self, num):
-        xx = self.xgrid(num)
+    def sample_f(self, npoints):
+        xx = self.xgrid(npoints)
         f = self.model.predict_f_samples(xx).numpy()
         return self.data(xx, f).rename(columns={'y': 'f'})
 
@@ -122,13 +125,13 @@ class GPBlackBox:
     def _plot_xy_1(self):
         return (
             alt.Chart(self.data())
-            .mark_circle(size=60)
+            .mark_circle(size=100, color='red')
             .encode(x=alt.X('x0:Q', scale=alt.Scale(domain=DOMAIN)), y='y'))
 
     def _plot_xy_2(self):
         return (
             alt.Chart(self.data())
-            .mark_circle(size=60, stroke='black', strokeWidth=1)
+            .mark_circle(size=100, stroke='black', strokeWidth=1)
             .encode(x=alt.X('x0:Q', scale=alt.Scale(domain=DOMAIN)),
                     y=alt.X('x1:Q', scale=alt.Scale(domain=DOMAIN)),
                     color=alt.Color('y:Q', scale=alt.Scale(scheme=COLOURSCHEME, domainMid=0))))
