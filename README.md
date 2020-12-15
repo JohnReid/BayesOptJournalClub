@@ -36,6 +36,7 @@ optimisation.
   from his University of Toronto course
 - Peter Roelant's [tutorial on Gaussian
   processes](https://peterroelants.github.io/posts/gaussian-process-tutorial/)
+- Rasmussen and Williams' [book](http://www.gaussianprocess.org/gpml/) on Gaussian processes
 
 
 #### Further reading
