@@ -50,7 +50,7 @@ optimisation.
   processes](https://distill.pub/2019/visual-exploration-gaussian-processes/)
 - Distill's [exploration of Bayesian
   optimisation](https://distill.pub/2020/bayesian-optimization/)
-- [BORE](https://tiao.io/talk/neurips2020-metalearn/): Bayesian optimisation by density ratio. No GPs!
+- [BORE](https://tiao.io/talk/neurips2020-metalearn/): Bayesian optimisation by density ratio estimation. No GPs!
 
 
 #### Software
